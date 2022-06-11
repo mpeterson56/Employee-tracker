@@ -55,8 +55,13 @@ const PromptUser = () => {
                     updateEmployee();
                     break;
                 
+                    case "Update Employee Roles":
+                        updateRoles();
+                        break;
+
+
                 case 'Add a Role':
-                    updateRoles();
+                    addRoles();
                     break;
             }
         });
@@ -211,6 +216,63 @@ const updateEmployee = () => {
         )
     });
   }
+
+
+  function addRoles() {
+    console.log('aa');
+
+    // query all the depts
+    connection.promise().query("SELECT * FROM Department")
+        .then((res) => {
+            // make the choice dept arr
+            return res[0].map(dept => {
+                return {
+                    name: dept.name,
+                    value: dept.id
+                }
+            })
+        })
+        .then((departments) => {
+
+            return inquirer.prompt([
+
+                {
+                    type: 'input',
+                    name: 'roles',
+                    message: 'Please add a role:'
+                },
+
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'Please enter a salary:'
+                },
+
+                {
+                    type: 'list',
+                    name: 'department',
+                    choices: departments,
+                    message: 'Please select your department.'
+                }
+            ])
+        })
+
+        .then(answer => {
+            console.log(answer);
+            return connection.promise().query('INSERT INTO role SET ?', { title: answer.roles, salary: answer.salary, department_id: answer.departments });
+        })
+        .then(res => {
+            console.log('Added new role')
+            runList();
+
+        })
+        .catch(err => {
+            throw err
+        });
+}
+
+
+
 
 const updateRoles = () => {
     console.log("Update Roles");
